@@ -375,6 +375,7 @@ class PCFExecute(QueueManager):
                  command_queue_name=b'SYSTEM.ADMIN.COMMAND.QUEUE',
                  command_queue=None,
                  response_wait_interval=5000,  # 5 seconds
+                 reply_queue_extra_mqoo=None,
                  convert=True):
         # type: (Any, Union[str,bytes], Union[None,bytes,str], Union[str,bytes], Union[str,bytes], Union[None,Queue], int, bool) -> None
         """PCFExecute(name = '')
@@ -419,7 +420,11 @@ class PCFExecute(QueueManager):
         od = OD(ObjectName=model_queue_name,
                 DynamicQName=dynamic_queue_name)
 
-        self.__reply_queue = Queue(self.qm, od, CMQC.MQOO_INPUT_EXCLUSIVE)
+        reply_queue_mqoo = CMQC.MQOO_INPUT_EXCLUSIVE
+        if reply_queue_extra_mqoo is not None:
+            reply_queue_mqoo |= reply_queue_extra_mqoo
+
+        self.__reply_queue = Queue(self.qm, od, reply_queue_mqoo)
         self.__reply_queue_name = od.ObjectName.strip()
 
     @property
